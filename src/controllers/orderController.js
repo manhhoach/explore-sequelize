@@ -6,7 +6,8 @@ const constant = require('./../utils/constant');
 const moment = require('moment');
 const { Op } = require('sequelize');
 const db = require('./../connectDB/db');
-const models = require('./../connectDB/db')
+const models = require('./../connectDB/db');
+const e = require('express');
 
 
 
@@ -108,11 +109,11 @@ module.exports.create = async (req, res, next) => {
 module.exports.checkOut = async (req, res, next) => {
     const t = await db.sequelize.transaction();
     try {
-        
+
         // step 1: create new order with status unpaid
         let status = 1;
         let new_order = await models.orders.create({
-            userId: req.user.id, 
+            userId: req.user.id,
             price: req.body.price,
             status: status
         }, { transaction: t });
@@ -125,13 +126,13 @@ module.exports.checkOut = async (req, res, next) => {
                     quantity: ele.quantity,
                     status: status
                 }, { transaction: t })
-                let pro=await models.products.findOne({where:{id: ele.productId}})
-                await models.products.update({quantity: pro.quantity-ele.quantity},{where:{id: ele.productId},transaction: t})
+                let pro = await models.products.findOne({ where: { id: ele.productId } })
+                await models.products.update({ quantity: pro.quantity - ele.quantity }, { where: { id: ele.productId }, transaction: t })
             })
         );
 
         // step 2: order payment user 
-        await models.users.update({ money:req.user.money - req.body.price }, { where: { id: req.user.id }, transaction: t })
+        await models.users.update({ money: req.user.money - req.body.price }, { where: { id: req.user.id }, transaction: t })
 
         //step 3: update status payment of order
         status = 2;
@@ -143,7 +144,7 @@ module.exports.checkOut = async (req, res, next) => {
         res.json(responseSuccess())
     }
     catch (err) {
-        
+
         console.log(err)
         await t.rollback();
         res.json(responseWithError(err.message))
@@ -305,6 +306,47 @@ module.exports.statistics = async (req, res, next) => {
     }
     catch (err) {
         console.log(err)
+        res.json(responseWithError(err))
+    }
+}
+
+const stripe = require('stripe')('sk_test_51JnCLGHHZgJAXgW0FilTG2ffM37O2WdSypyeEcgejMiupnk9pQHlLzbtucaqREcy6SOLqHoW8WF0HEp98dxXYA3H00OSCy9B2R')
+module.exports.checkOutStripe = async (req, res, next) => {
+    try {
+        let line_items = req.body.products.map(ele => {
+            return {
+                price_data: {
+                    currency: 'usd',
+                    product_data: {
+                        name: ele.name
+                    },
+                    unit_amount: ele.price,
+                },
+                quantity: ele.quantity
+            }
+        })
+        const session = await stripe.checkout.sessions.create({
+            line_items: line_items,
+            mode: 'payment',
+            success_url: 'http://localhost:3000/cart/check-out/success',
+            cancel_url: 'http://localhost:3000/cart/check-out/cancel',
+        });
+        res.json(responseSuccess(session))
+
+    }
+    catch (err) {
+        res.json(responseWithError(err))
+    }
+}
+module.exports.getResultCheckOut = async (req, res, next) => {
+    try {
+        let result = req.params.result;
+        if (result === 'success')
+            res.json(responseSuccess())
+        else
+            res.json(responseWithError())
+    }
+    catch (err) {
         res.json(responseWithError(err))
     }
 }

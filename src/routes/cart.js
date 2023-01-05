@@ -4,6 +4,10 @@ const orderController = require('./../controllers/orderController');
 const orderDetailController = require('./../controllers/orderDetailController');
 const jwt_token = require('./../middlewares/jwt_token')
 
+
+router.post('/create-checkout-session', orderController.checkOutStripe);
+router.get('/check-out/:result', orderController.getResultCheckOut);
+
 router.use(jwt_token.checkToken);
 
 router.get('/', orderController.getAll);
