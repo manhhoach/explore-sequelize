@@ -33,6 +33,21 @@ db.users = require('../models/user')(sequelize, DataTypes)
 db.orders = require('../models/order')(sequelize, DataTypes)
 db.order_details = require('../models/order_detail')(sequelize, DataTypes)
 
-//db.products.sync({alter: true})
+db.modules=require('../models/module')(sequelize, DataTypes)
+db.permissions=require('../models/permission')(sequelize, DataTypes)
+db.roles=require('../models/role')(sequelize, DataTypes)
+db.authorizations=require('../models/authorization')(sequelize, DataTypes)
+
+// db.sequelize.sync({alter: true})
+// const queryInterface = sequelize.getQueryInterface();
+
+
+// sequelize.sync({alter: true}).then(()=>{
+//     return queryInterface.addConstraint('tests',  {
+//         fields:['moduleId', 'permissionId', 'roleId'],
+//         type: 'unique',
+//         name: 'custom_unique_constraint'
+//     });
+// })
 
 module.exports = db;
