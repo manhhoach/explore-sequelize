@@ -34,12 +34,14 @@ const getPlainData = records => records.map(record =>
 module.exports.getProductInCart = async (condition) => {
   return models.orders.findAll({
     where: condition,
-    plain: false,
+    attributes:['id', 'userId'],
     include: [
       {
         model: models.order_details,
+        attributes: ['id', 'quantity', 'productId'],
         include: {
-            model: models.products
+            model: models.products,
+            attributes:['id', 'name','price']
         }
       },
     ],
