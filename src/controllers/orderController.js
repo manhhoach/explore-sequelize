@@ -7,50 +7,51 @@ const moment = require('moment');
 const { Op } = require('sequelize');
 const db = require('./../connectDB/db');
 const models = require('./../connectDB/db');
-const e = require('express');
 
 
 
 module.exports.getAll = async (req, res, next) => {
     try {
         let condition = {
-            orderCondition: {
-                userId: req.user.id,
-                status: constant[0].VALUE
-            }
+            userId: req.user.id,
+            status: constant[0].VALUE  
         }
         let cart = await orderService.getProductInCart(condition);
-        if (Array.isArray(cart) && cart.length > 0) {
-            cart = await Promise.all(
-                cart.map(async (order_detail) => {
-                    let product = await productService.getById(order_detail.product_detail.productId);
-                    product = {
-                        id: product.id,
-                        name: product.name,
-                        price: product.price,
-                        imageUrl: product.imageUrl ? product.imageUrl.split(';') : null,
-                        totalSold: product.totalSold,
-                        code: order_detail.product_detail.code,
-                        size: order_detail.product_detail.size,
-                        color: order_detail.product_detail.color,
-                        quantity: order_detail.product_detail.quantity
-                    }
+        res.json(cart)
 
-                    return {
-                        id: order_detail.id,
-                        orderId: order_detail.orderId,
-                        productDetailId: order_detail.productDetailId,
-                        quantity: order_detail.quantity,
-                        status: order_detail.status,
-                        createdDate: order_detail.createdDate,
-                        product
-                    }
-                }))
-            res.json(responseSuccess(cart))
-        }
-        else {
-            res.json(responseSuccess([]))
-        }
+
+
+        // if (Array.isArray(cart) && cart.length > 0) {
+        //     cart = await Promise.all(
+        //         cart.map(async (order_detail) => {
+        //             let product = await productService.getById(order_detail.product_detail.productId);
+        //             product = {
+        //                 id: product.id,
+        //                 name: product.name,
+        //                 price: product.price,
+        //                 imageUrl: product.imageUrl ? product.imageUrl.split(';') : null,
+        //                 totalSold: product.totalSold,
+        //                 code: order_detail.product_detail.code,
+        //                 size: order_detail.product_detail.size,
+        //                 color: order_detail.product_detail.color,
+        //                 quantity: order_detail.product_detail.quantity
+        //             }
+
+        //             return {
+        //                 id: order_detail.id,
+        //                 orderId: order_detail.orderId,
+        //                 productDetailId: order_detail.productDetailId,
+        //                 quantity: order_detail.quantity,
+        //                 status: order_detail.status,
+        //                 createdDate: order_detail.createdDate,
+        //                 product
+        //             }
+        //         }))
+        //     res.json(responseSuccess(cart))
+        // }
+        // else {
+        //     res.json(responseSuccess([]))
+        // }
     }
     catch (err) {
         res.json(responseWithError(err))

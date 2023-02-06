@@ -34,12 +34,12 @@ module.exports = (sequelize, DataTypes) => {
     order.belongsToMany(product, {through: order_detail})
     
 
-    order_detail.belongsTo(product)
-    order_detail.belongsTo(order)
+    // order_detail.belongsTo(product)
+    // order_detail.belongsTo(order)
 
 
-    product.hasMany(order_detail);
-    order.hasMany(order_detail);
+    // product.hasMany(order_detail);
+    // order.hasMany(order_detail);
 
 
     return order_detail;

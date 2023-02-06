@@ -38,10 +38,21 @@ db.permissions=require('../models/permission')(sequelize, DataTypes)
 db.roles=require('../models/role')(sequelize, DataTypes)
 db.authorizations=require('../models/authorization')(sequelize, DataTypes)
 
-// db.sequelize.sync({alter: true})
+
+db.orders.hasMany(db.order_details);
+db.order_details.belongsTo(db.orders);
+
+db.order_details.belongsTo(db.products)
+db.products.hasMany(db.order_details);
+
+
+// db.orders.sync({alter: true})
+// db.order_details.sync({alter: true})
+
+
+
+
 // const queryInterface = sequelize.getQueryInterface();
-
-
 // sequelize.sync({alter: true}).then(()=>{
 //     return queryInterface.addConstraint('tests',  {
 //         fields:['moduleId', 'permissionId', 'roleId'],
